@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP Labo3</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="spinnerContainer">
+        <div id="spinner" class="spinner"></div>
+    </div>
+
+    <div id="formularioLista">
+        <table id="tablaPersonas">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Fecha de Nacimiento</th>
+                    <th>DNI</th>
+                    <th>Pais de Origen</th>
+                    <th>Modificar/Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        <button id="btnAgregar">Agregar Elemento</button>
+    </div>
+
+    <div class="abmContainer">
+        <div id="formularioAbm" class="abmForm" style="display: none;">
+            <h1>Formulario ABM</h1>
+
+            <p>ID: <input type="text" id="abmId" readonly></p>
+            <p>Nombre: <input type="text" id="abmNombre" placeholder="Nombre"></p>
+            <p>Apellido: <input type="text" id="abmApellido" placeholder="Apellido"></p>
+            <p>Fecha de Nacimiento: <input type="text" id="abmFechaNacimiento" placeholder="Fecha de Nacimiento"></p>
+            <p>Tipo:
+                <select id="selectTipo">
+                    <option value="Ciudadano">DNI</option>
+                    <option value="Extranjero">Pais de Origen</option>
+                </select>
+            </p>
+
+            <div id="ciudadano">
+                <p>DNI: <input type="number" id="abmDni" placeholder="DNI"></p>
+            </div>
+
+            <div id="extranjero">
+                <p>Pais de Origen: <input type="text" id="abmPaisOrigen" placeholder="Pais de Origen"></p>
+            </div>
+
+            <button type="button" id="btnAceptar">Aceptar</button>
+            <button type="button" id="btnCancelar">Cancelar</button>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
