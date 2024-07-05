@@ -94,7 +94,7 @@ function renderizarTabla()
         fila.appendChild(columnaApellido);
 
         let columnaFechaNacimiento = document.createElement("td");
-        columnaFechaNacimiento.textContent = cliente.fechaNacimiento;
+        columnaFechaNacimiento.textContent = formatearFecha(cliente.fechaNacimiento.toString());
         fila.appendChild(columnaFechaNacimiento);
 
         let columnaDni = document.createElement("td");
@@ -110,8 +110,6 @@ function renderizarTabla()
         botonModificar.textContent = "Modificar";
         //MODIFICAR
         botonModificar.addEventListener("click", function() {
-            console.log("Click modificar " + cliente.id);
-            
             mostrarAbm(cliente);
         });
 
@@ -119,8 +117,6 @@ function renderizarTabla()
         botonEliminar.textContent = "Eliminar";
         //ELIMINAR
         botonEliminar.addEventListener("click", function() {
-            console.log("Click eliminar " + cliente.id);
-
             boolEliminar = true;
 
             mostrarAbm(cliente);
@@ -144,15 +140,11 @@ $("btnAgregar").addEventListener("click", function() {
 
         $("abmDni").value = "";
         $("abmPaisOrigen").value = "";
-
-        console.log(tipo);
     });
 });
 
 //BOTON ACEPTAR EN ABM
 $("btnAceptar").addEventListener("click", () => {
-    console.log("Click aceptar abm");
-
     if(boolEliminar)
     {
         eliminarPersona({
@@ -177,35 +169,35 @@ $("btnAceptar").addEventListener("click", () => {
             apellido: $("abmApellido").value,
             fechaNacimiento: $("abmFechaNacimiento").value,
             tipo: $("selectTipo").value,
-            dni: $("abmDni").value,
-            paisOrigen: $("abmPaisOrigen").value,
+            dni: $("abmDni").value || null,
+            paisOrigen: $("abmPaisOrigen").value || null,
         };
 
-        /*VERIFICAR BIEN!!*/
+        if (nuevaPersona.nombre == "" || nuevaPersona.apellido == "" || nuevaPersona.fechaNacimiento == "")
+        {
+            alert("Complete los campos Nombre, Apellido o Fecha de nacimiento correctamente");
 
-        // if (nuevaPersona.nombre == "" || nuevaPersona.apellido == "" || nuevaPersona.fechaNacimiento < 15)
-        // {
-        //     alert("Complete los campos Nombre, Apellido o Edad correctamente");
-        //     return;
-        // }
+            return;
+        }
 
-        // if (nuevaPersona.tipo === "Ciudadano") 
-        // {
-        //     if (nuevaPersona.sueldo == "" || nuevaPersona.sueldo < 0 || nuevaPersona.ventas == "" || nuevaPersona.ventas < 0)
-        //     {
-        //         alert("Complete los datos Sueldo o Ventas correctamente");
-        //         return;
-        //     }
-        // }
+        if (nuevaPersona.tipo === "Ciudadano") 
+        {
+            if (nuevaPersona.dni == "" || nuevaPersona.dni < 0 || nuevaPersona.dni > 8)
+            {
+                alert("Complete los datos Dni correctamente");
 
-        // if (nuevaPersona.tipo === "Extranjero")
-        // {
-        //     if (nuevaPersona.compras == "" || nuevaPersona.compras < 0 || nuevaPersona.telefono == "")
-        //     {
-        //         alert("Complete los datos Compras o Telefono correctamente");
-        //         return;
-        //     }
-        // }
+                return;
+            }
+        }
+
+        if (nuevaPersona.tipo === "Extranjero")
+        {
+            if (nuevaPersona.paisOrigen == "")
+            {
+                alert("Complete los datos Pais de Origen correctamente");
+                return;
+            }
+        }
 
         if (nuevaPersona.id)
         {
@@ -265,7 +257,7 @@ function mostrarAbm(persona = null)
         $("abmNombre").value = "";
         $("abmApellido").value = "";
         $("abmFechaNacimiento").value = "";
-        $("selectTipo").value = "";
+        $("selectTipo").value;
         $("abmDni").value = "";
         $("abmPaisOrigen").value = "";
 
@@ -300,88 +292,103 @@ function actualizarVisibilidadCampos(tipo)
     }
 }
 
-async function actualizarPersona(nuevaPersona)
+function actualizarPersona(nuevaPersona)
 {
-    console.log("Async");
-
     mostrarSpinner();
 
-    try
-    {
-        let respuesta = await fetch(API_URL, {
-            method: "POST", //MODIFICAR
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8"
-            },
-            body: JSON.stringify(nuevaPersona)
-        });
-
-        let index = LISTAPERSONAS.findIndex(persona => persona.id == nuevaPersona.id);
-        if (index !== -1)
+    fetch(API_URL, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        body: JSON.stringify(nuevaPersona)
+    })
+    .then(response => {
+        if (response.ok)
         {
-            LISTAPERSONAS[index].nombre = nuevaPersona.nombre;
-            LISTAPERSONAS[index].apellido = nuevaPersona.apellido;
-            LISTAPERSONAS[index].fechaNacimiento = nuevaPersona.fechaNacimiento;
-            if (nuevaPersona.tipo === "Ciudadano")
+            let index = LISTAPERSONAS.findIndex(persona => persona.id == nuevaPersona.id);
+            if (index !== -1)
             {
-                LISTAPERSONAS[index].dni = nuevaPersona.dni;
+                LISTAPERSONAS[index].nombre = nuevaPersona.nombre;
+                LISTAPERSONAS[index].apellido = nuevaPersona.apellido;
+                LISTAPERSONAS[index].fechaNacimiento = nuevaPersona.fechaNacimiento;
+                if (nuevaPersona.tipo === "Ciudadano")
+                {
+                    LISTAPERSONAS[index].dni = nuevaPersona.dni;
+                }
+                if (nuevaPersona.tipo === "Extranjero")
+                {
+                    LISTAPERSONAS[index].paisOrigen = nuevaPersona.paisOrigen;
+                }
             }
-            if (nuevaPersona.tipo === "Extranjero")
-            {
-                LISTAPERSONAS[index].paisOrigen = nuevaPersona.paisOrigen;
-            }
+
+            ocultarAbm();
+        }
+        else
+        {
+            console.error("Error en la actualización de la persona");
         }
 
-        ocultarAbm();
-    }
-    catch (error)
-    {
+    })
+    .catch(error => {
         console.error(error.message);
         ocultarAbm();
-    }
-    finally
-    {
+    })
+    .finally(() => {
         ocultarSpinner();
-    }
+    });
 }
 
 function insertarPersona(nuevaPersona)
 {
     mostrarSpinner();
 
-    let put = {
-        method: "PUT", //AGREGAR
-        headers: {
-         "Content-type": "application/json; charset=UTF-8" 
-        },
-        body: JSON.stringify(nuevaPersona)
+    let data = {
+        nombre: nuevaPersona.nombre,
+        apellido: nuevaPersona.apellido,
+        fechaNacimiento: nuevaPersona.fechaNacimiento
+    };
+
+    if (nuevaPersona.tipo === "Ciudadano")
+    {
+        data.dni = nuevaPersona.dni;
     }
-    
-    fetch(API_URL, put)
-    .then(respuesta => respuesta.json())
+    else if (nuevaPersona.tipo === "Extranjero")
+    {
+        data.paisOrigen = nuevaPersona.paisOrigen;
+    }
+
+    fetch(API_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json;charset=UTF-8"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Error en la inserción de la persona');
+        }
+    })
     .then(data => {
         nuevaPersona.id = data.id;
-
         LISTAPERSONAS.push(nuevaPersona);
-
         ocultarAbm();
-        renderizarTabla();
     })
     .catch(error => {
         console.error(error.message);
-
         ocultarAbm();
-        renderizarTabla();
     })
-    .finally(function (){
+    .finally(() => {
         ocultarSpinner();
+        renderizarTabla();
     });
 }
 
 function eliminarPersona(cliente)
 {
-    console.log("Funcion Eliminar");
-
     mostrarSpinner();
 
     const xhr = new XMLHttpRequest();
@@ -411,12 +418,21 @@ function eliminarPersona(cliente)
     xhr.send(JSON.stringify({ id: cliente.id }));
 }
 
+function formatearFecha(fechaNacimiento)
+{
+    let anio = fechaNacimiento.substring(0, 4);
+    let mes = fechaNacimiento.substring(4, 6);
+    let dia = fechaNacimiento.substring(6, 8);
+    
+    let fechaFormateado = anio + "/" + mes + "/" + dia;
+
+    return fechaFormateado;
+}
+
 function borrarTd()
 {
     document.querySelectorAll("tbody td").forEach(cell => {
         cell.remove();
-
-        console.log("BORRE!");
     });
 }
 
