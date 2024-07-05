@@ -181,13 +181,12 @@ $("btnAceptar").addEventListener("click", () => {
 
         if (nuevaPersona.tipo === "Ciudadano")
         {
-            if (!nuevaPersona.dni || isNaN(nuevaPersona.dni) || nuevaPersona.dni <= 0)
+            if (!nuevaPersona.dni || isNaN(nuevaPersona.dni) || nuevaPersona.dni <= 0 || nuevaPersona.dni > 99999999)
             {
-                alert("Complete los datos Dni correctamente");
+                alert("Complete los datos DNI correctamente");
                 return;
             }
         }
-
         if (nuevaPersona.tipo === "Extranjero")
         {
             if (!nuevaPersona.paisOrigen)
@@ -414,6 +413,30 @@ function eliminarPersona(cliente)
     };
 
     xhr.send(JSON.stringify({ id: cliente.id }));
+}
+
+function formatearFechaNacimiento(input)
+{
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 8)
+    {
+        value = value.substring(0, 8);
+    }
+    let formattedValue = value;
+    if (value.length >= 5)
+    {
+        formattedValue = `${value.substring(0, 4)}/${value.substring(4, 6)}/${value.substring(6, 8)}`;
+    }
+    else if (value.length >= 3)
+    {
+        formattedValue = `${value.substring(0, 4)}/${value.substring(4, 6)}`;
+    }
+    else if (value.length >= 1)
+    {
+        formattedValue = `${value.substring(0, 4)}`;
+    }
+
+    input.value = formattedValue;
 }
 
 function formatearFecha(fechaNacimiento)
