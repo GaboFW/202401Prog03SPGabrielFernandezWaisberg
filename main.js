@@ -176,23 +176,21 @@ $("btnAceptar").addEventListener("click", () => {
         if (nuevaPersona.nombre == "" || nuevaPersona.apellido == "" || nuevaPersona.fechaNacimiento == "")
         {
             alert("Complete los campos Nombre, Apellido o Fecha de nacimiento correctamente");
-
             return;
         }
 
-        if (nuevaPersona.tipo === "Ciudadano") 
+        if (nuevaPersona.tipo === "Ciudadano")
         {
-            if (nuevaPersona.dni == "" || nuevaPersona.dni < 0 || nuevaPersona.dni > 8)
+            if (!nuevaPersona.dni || isNaN(nuevaPersona.dni) || nuevaPersona.dni <= 0)
             {
                 alert("Complete los datos Dni correctamente");
-
                 return;
             }
         }
 
         if (nuevaPersona.tipo === "Extranjero")
         {
-            if (nuevaPersona.paisOrigen == "")
+            if (!nuevaPersona.paisOrigen)
             {
                 alert("Complete los datos Pais de Origen correctamente");
                 return;
